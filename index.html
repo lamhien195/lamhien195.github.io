@@ -1,0 +1,138 @@
+<html>
+
+<head>
+    <title> TO DO LISTS </title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+    <div class="container" ng-app="myApp" ng-controller="myCtrl">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="todolist not-done">
+                    <h1>Todos</h1>
+                    <input type="text" class="form-control add-todo" placeholder="Add todo" ng-model="works">
+                    <p></p>
+                    <button class="btn btn-success" ng-click="create_new_todo()" ng-disabled="works == ''">Add</button>
+
+                    <hr>
+                    <ul id="sortable" class="list-unstyled">
+                        <li class="ui-state-default" ng-repeat="item in congviec">
+                            <div class="checkbox">
+                                <label> 
+                                    
+                                    <input type="checkbox" value="" name ="check_item" ng-change="marked_todo(item)" ng-model="item.isDone"/>
+                                    <a href="#" ng-click="update_todo(item._id)" ng-disabled="works == ''"><span class="glyphicon glyphicon-edit"></span></a>
+                                    <a href="#" ng-click="delete_todo(item._id)"><span class="glyphicon glyphicon-trash"></span></a>                                  
+                                    
+                                    {{item.text}}
+                                     <a href="#" ng-hide="item.isDone==false"><span class="glyphicon glyphicon-ok"></span></a>
+                                    </label>
+                            </div>
+                        </li>
+
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var app = angular.module('myApp', []);
+        app.controller('myCtrl', function($scope, $http) {
+
+        $scope.works = ''; 
+
+        // lấy dữ liệu từ server
+        $scope.get_todolist = function(){
+            $http.get("https://node-todos.herokuapp.com/api/todos")
+                    .then(function(response) {
+                        $scope.congviec = response.data;
+                    });
+
+        }
+
+        // init dữ liệu
+        $scope.get_todolist();
+       
+        // thêm mới 1 todo list
+         $scope.create_new_todo = function(){
+            
+                var datas = { 
+                    text: $scope.works,
+                    isDone: false
+                    };
+                
+
+                $http.post("https://node-todos.herokuapp.com/api/todo", datas)
+                .then(function(response)
+                {
+                    $scope.get_todolist();
+                });
+         }
+// cập nhật 1 todo list
+       $scope.update_todo = function(id){
+            
+                var data_update = { 
+                    _id:id,
+                    text: $scope.works
+                    };
+                
+
+                $http.put("https://node-todos.herokuapp.com/api/todo", data_update)
+                .then(function(response)
+                    {
+                        $scope.get_todolist();
+                    });
+         }
+
+         // cập nhật 1 todo list
+       $scope.delete_todo = function(id){
+            
+                var data_delete = { 
+                    _id:id
+                    };
+                
+
+                $http.delete("https://node-todos.herokuapp.com/api/todo/"+id, data_delete)
+                    .then(function(response)
+                    {
+                        $scope.get_todolist();
+                    });
+         }
+
+           // đánh dấu 1 todo list
+       $scope.marked_todo = function(item){   
+              
+
+                $http.put("https://node-todos.herokuapp.com/api/todo", item)
+                    .then(function(response)
+                    {
+                        $scope.get_todolist();
+                    });
+             
+         }
+         $scope.checked_todo = function(state){   
+            var trangthai;
+            if(state==false)
+            {
+                trangthai=state;
+            }
+              
+        }
+
+        });
+        
+
+        
+    </script>
+</body>
+
+</html>
